@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="سجل التحضير">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#28402e">
+<title>سجل التحضير</title>
+<meta name="description" content="تطبيق سجل التحضير — تسجيل حضور وغياب الطلاب لكل أسرة، مع نقاط وتقرير شامل، يعمل من المتصفح مباشرة بدون تثبيت.">
+<meta name="keywords" content="سجل التحضير, تحضير الطلاب, حضور وغياب, نظام النقاط, أسر مدرسية">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="سجل التحضير">
+<meta property="og:description" content="تطبيق لتسجيل حضور وغياب الطلاب لكل أسرة مع نقاط وتقرير شامل.">
+<meta property="og:locale" content="ar_AR">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="سجل التحضير">
+<meta name="twitter:description" content="تطبيق لتسجيل حضور وغياب الطلاب لكل أسرة مع نقاط وتقرير شامل.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c2521;
+    --paper:#f2ede3;
+    --card:#fffdf8;
+    --line:#d9d0bd;
+    --moss:#3d5a45;
+    --moss-deep:#28402e;
+    --clay:#b6552c;
+    --gold:#c99a3b;
+    --present:#3d5a45;
+    --absent:#b6552c;
+    --late:#c99a3b;
+    --shadow: 0 1px 0 rgba(28,37,33,.05);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(28,37,33,.06) 1px, transparent 0);
+    background-size: 22px 22px;
+    color:var(--ink);
+    font-family:'Tajawal',sans-serif;
+    min-height:100vh;
+    padding: 28px 16px 60px;
+  }
+  .wrap{max-width:620px;margin:0 auto;}
+  .hidden{display:none !important;}
+
+  /* ---------- Login view ---------- */
+  .login-wrap{max-width:460px;margin:40px auto;}
+  .login-head{text-align:center;margin-bottom:30px;}
+  .login-head h1{
+    font-size:clamp(28px,7vw,38px);
+    font-weight:900;
+    margin:0 0 6px;
+    letter-spacing:-.5px;
+  }
+  .login-head h1 span{color:var(--moss);}
+  .login-head p{color:#6b6255;font-size:14px;margin:0 0 10px;}
+  .report-btn{
+    display:block;
+    width:100%;
+    margin-top:10px;
+    background:var(--ink);
+    color:var(--paper);
+    border:none;
+    border-radius:8px;
+    padding:13px;
+    font-family:'Tajawal',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .report-btn:hover{background:var(--moss-deep);}
+
+  .utility-row{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+    flex-wrap:wrap;
+  }
+  .util-btn{
+    flex:1;
+    min-width:150px;
+    background:var(--card);
+    border:1.5px solid var(--ink);
+    color:var(--ink);
+    border-radius:8px;
+    padding:11px;
+    font-family:'Tajawal',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+  }
+  .util-btn:hover{background:var(--paper);}
+  .install-steps p{
+    font-size:13px;
+    line-height:1.8;
+    margin:0 0 12px;
+    color:var(--ink);
+  }
+  .install-steps .ic{font-size:14px;}
+
+  .modal-overlay{
+    position:fixed;inset:0;
+    background:rgba(28,37,33,.55);
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  .modal-box{
+    background:var(--card);
+    border:1.5px solid var(--ink);
+    border-radius:10px;
+    max-width:520px;
+    width:100%;
+    max-height:85vh;
+    overflow-y:auto;
+    padding:20px;
+    box-shadow:0 6px 0 rgba(28,37,33,.15);
+  }
+  .modal-head{
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:6px;
+  }
+  .modal-head h2{margin:0;font-size:20px;font-weight:900;}
+  .modal-close{
+    border:none;background:transparent;font-size:18px;cursor:pointer;color:var(--ink);
+    padding:4px 8px;
+  }
+  .report-range{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;color:#6b6255;margin:0 0 16px;
+  }
+  .report-group{
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    padding:12px 14px;
+    margin-bottom:12px;
+  }
+  .report-group .rg-name{font-weight:700;font-size:15px;margin-bottom:8px;}
+  .rg-level-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    font-weight:500;
+    color:#6b6255;
+    background:var(--paper);
+    border:1px solid var(--line);
+    padding:2px 6px;
+    border-radius:8px;
+  }
+  .report-group .rg-stats{display:flex;gap:10px;flex-wrap:wrap;}
+  .rg-points-actions{
+    display:flex;align-items:center;gap:8px;
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px dashed var(--line);
+  }
+  .rg-points-amount{
+    width:60px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    padding:5px 7px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .report-group .rg-pill{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    padding:4px 10px;
+    border-radius:8px;
+  }
+  .rg-pill.present{background:#e7ecdf;color:var(--moss-deep);}
+  .rg-pill.absent{background:#f4e6dd;color:var(--clay);}
+  .rg-pill.points{background:#f8eecb;color:#8a6a17;}
+  .rg-pill.deducted{background:#f4e6dd;color:var(--clay);display:inline-flex;align-items:center;gap:2px;}
+  .rg-deducted-edit-row{
+    display:flex;align-items:center;gap:6px;
+    margin-top:8px;
+  }
+  .rg-deducted-edit-row input{
+    width:64px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    padding:5px 7px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .report-empty{font-size:13px;color:#8a8171;text-align:center;padding:20px 0;}
+  .conn-badge{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    padding:4px 10px;
+    border-radius:10px;
+    border:1px solid var(--line);
+    color:#8a8171;
+  }
+  .conn-badge.online{color:var(--moss-deep);background:#e7ecdf;border-color:var(--moss);}
+  .conn-badge.offline{color:var(--clay);background:#f4e6dd;border-color:var(--clay);}
+
+  .group-card{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--card);
+    border:1.5px solid var(--ink);
+    border-radius:10px;
+    padding:16px 18px;
+    margin-bottom:14px;
+    cursor:pointer;
+    transition: all .15s;
+    box-shadow: 0 2px 0 rgba(28,37,33,.08);
+  }
+  .group-card:hover{
+    background:var(--moss-deep);
+    color:#f2ede3;
+    transform:translateY(-1px);
+  }
+  .group-card:hover .group-meta{color:#d8d2c4;}
+  .group-card .avatar{
+    width:42px;height:42px;border-radius:50%;
+    background:var(--moss);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-family:'IBM Plex Mono',monospace;
+    flex-shrink:0;
+  }
+  .group-card .info{flex:1;min-width:0;}
+  .group-card .name{font-weight:700;font-size:17px;}
+  .group-card .group-meta{font-size:12px;color:#8a8171;font-family:'IBM Plex Mono',monospace;}
+  .group-card .enter-arrow{font-family:'IBM Plex Mono',monospace;font-size:16px;opacity:.5;}
+
+  .level-card{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:var(--moss-deep);
+    color:#f2ede3;
+    border:1.5px solid var(--ink);
+    border-radius:10px;
+    padding:20px 18px;
+    margin-bottom:14px;
+    cursor:pointer;
+    transition: all .15s;
+    box-shadow: 0 2px 0 rgba(28,37,33,.08);
+  }
+  .level-card:hover{transform:translateY(-1px);background:var(--moss);}
+  .level-card .level-icon{font-size:26px;}
+  .level-card .level-info{flex:1;}
+  .level-card .level-name{font-weight:900;font-size:18px;}
+  .level-card .level-meta{font-size:12px;color:#d8d2c4;font-family:'IBM Plex Mono',monospace;}
+  .level-card .enter-arrow{font-family:'IBM Plex Mono',monospace;font-size:16px;opacity:.7;}
+
+  .back-btn{
+    display:inline-block;
+    background:none;
+    border:none;
+    color:var(--moss-deep);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    padding:6px 0;
+    margin-bottom:12px;
+  }
+  .back-btn:hover{text-decoration:underline;}
+
+  /* ---------- App (post-login) view ---------- */
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:16px;
+    border-bottom:3px solid var(--ink);
+    padding-bottom:14px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .brand{display:flex;flex-direction:column;gap:2px;}
+  .brand .who{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:#6b6255;
+    letter-spacing:.06em;
+  }
+  h1.group-title{
+    font-size:clamp(24px,6vw,34px);
+    font-weight:900;
+    margin:0;
+    letter-spacing:-0.5px;
+  }
+  .header-actions{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;}
+  .date-box{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:4px;
+  }
+  .date-box label{font-size:11px;letter-spacing:.08em;color:#6b6255;font-family:'IBM Plex Mono',monospace;}
+  .date-box input{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:15px;
+    border:2px solid var(--ink);
+    background:var(--card);
+    padding:6px 10px;
+    border-radius:3px;
+    color:var(--ink);
+  }
+  .save-btn{
+    border:1.5px solid var(--moss);
+    background:var(--moss);
+    color:#fff;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    font-weight:700;
+    padding:8px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .save-btn:hover{background:var(--moss-deep);border-color:var(--moss-deep);}
+  .logout-btn{
+    border:1.5px solid var(--clay);
+    background:var(--card);
+    color:var(--clay);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    font-weight:700;
+    padding:8px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .logout-btn:hover{background:var(--clay);color:#fff;}
+
+  .meta-strip{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .meta-strip .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    background:var(--ink);
+    color:var(--paper);
+    padding:3px 9px;
+    border-radius:10px;
+  }
+  .autosave-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--moss-deep);
+    background:#e7ecdf;
+    border:1px solid var(--moss);
+    padding:3px 10px;
+    border-radius:10px;
+  }
+  .autosave-badge .dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--moss);
+    display:inline-block;
+    animation: pulse 1.8s infinite;
+  }
+  @keyframes pulse{
+    0%,100%{opacity:1;}
+    50%{opacity:.35;}
+  }
+
+  .summary-strip{
+    display:flex;
+    gap:10px;
+    margin-bottom:22px;
+    flex-wrap:wrap;
+  }
+  .pill{
+    flex:1;
+    min-width:100px;
+    background:var(--card);
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    padding:10px 14px;
+    box-shadow:var(--shadow);
+  }
+  .pill .num{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:22px;display:block;}
+  .pill .lbl{font-size:12px;color:#6b6255;}
+  .pill.present .num{color:var(--present);}
+  .pill.absent .num{color:var(--absent);}
+  .pill.late .num{color:var(--late);}
+
+  .points-panel{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:14px;
+    background:var(--card);
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    padding:14px 18px;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+    box-shadow: 0 2px 0 rgba(28,37,33,.08);
+  }
+  .points-info{display:flex;align-items:baseline;gap:10px;}
+  .points-lbl{font-size:13px;color:#6b6255;}
+  .points-val{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+    font-size:26px;
+    color:var(--gold);
+  }
+  .points-deducted-lbl{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--clay);
+    display:flex;
+    align-items:center;
+    gap:4px;
+  }
+  .edit-mini{
+    border:none;background:transparent;cursor:pointer;
+    font-size:12px;opacity:.6;padding:2px 4px;
+  }
+  .edit-mini:hover{opacity:1;}
+  .deducted-edit-row{
+    display:flex;align-items:center;gap:6px;
+  }
+  .deducted-edit-row input{
+    width:64px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    padding:5px 7px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .points-actions{display:flex;align-items:center;gap:8px;}
+  .points-actions input{
+    width:64px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14px;
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    padding:6px 8px;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .pt-btn{
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    padding:8px 12px;
+    font-family:'Tajawal',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .pt-btn.add{background:var(--moss);color:#fff;border-color:var(--moss);}
+  .pt-btn.add:hover{background:var(--moss-deep);}
+  .pt-btn.deduct{background:var(--clay);color:#fff;border-color:var(--clay);}
+  .pt-btn.deduct:hover{background:#8f4020;}
+  .rows{padding:6px 0;}
+  .row{
+    display:grid;
+    grid-template-columns: 30px 1fr auto;
+    align-items:center;
+    gap:10px;
+    padding:10px 18px;
+    border-bottom:1px solid var(--line);
+  }
+  .row:last-child{border-bottom:none;}
+  .row .idx{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:#a39a89;
+  }
+  .row input.name{
+    font-family:'Tajawal',sans-serif;
+    font-size:15px;
+    color:var(--ink);
+    font-weight:500;
+    border:none;
+    background:transparent;
+    padding:5px 4px;
+    border-bottom:1px dashed transparent;
+    width:100%;
+  }
+  .row input.name:focus{
+    outline:none;
+    border-bottom:1px dashed var(--moss);
+    background:#f9f6ee;
+  }
+  .status-btns{display:flex;gap:6px;}
+  .status-btns button{
+    min-width:64px;
+    height:36px;
+    padding:0 12px;
+    border-radius:6px;
+    border:1.5px solid var(--ink);
+    background:var(--card);
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    color:var(--ink);
+    transition: all .12s;
+    font-family:'Tajawal',sans-serif;
+  }
+  .status-btns button:hover{transform:translateY(-1px);}
+  .status-btns button.active-present{background:var(--present);border-color:var(--present);color:#fff;}
+  .status-btns button.active-absent{background:var(--absent);border-color:var(--absent);color:#fff;}
+  .status-btns button.active-late{background:var(--late);border-color:var(--late);color:#fff;}
+
+  .add-student-btn{
+    display:block;
+    width:100%;
+    margin-top:12px;
+    background:var(--card);
+    border:1.5px dashed var(--moss);
+    color:var(--moss-deep);
+    border-radius:8px;
+    padding:12px;
+    font-family:'Tajawal',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .add-student-btn:hover{background:#e7ecdf;}
+
+  footer{
+    text-align:center;
+    font-size:12px;
+    color:#8a8171;
+    margin-top:26px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .save-note{
+    position:fixed;
+    bottom:18px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--ink);
+    color:var(--paper);
+    padding:8px 18px;
+    border-radius:20px;
+    font-size:13px;
+    opacity:0;
+    transition: all .25s;
+    pointer-events:none;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .save-note.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .save-note.error{background:var(--absent);}
+
+  @media (max-width:480px){
+    .row{grid-template-columns:24px 1fr auto;padding:8px 12px;}
+    .status-btns button{min-width:52px;height:32px;font-size:12px;padding:0 8px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== شاشة تسجيل الدخول ===== -->
+<div class="wrap login-wrap" id="loginView">
+  <div class="login-head">
+    <h1>سجل <span>التحضير</span></h1>
+    <p id="loginSubtitle">اختر القسم</p>
+    <span class="conn-badge" id="connBadge">● جارِ التحقق من الاتصال...</span>
+  </div>
+
+  <div id="levelList"></div>
+
+  <div id="groupListView" class="hidden">
+    <button class="back-btn" id="backToLevelsBtn">→ رجوع لاختيار القسم</button>
+    <div id="groupList"></div>
+  </div>
+
+  <button class="report-btn" id="reportBtn">📊 عرض التقرير الشامل لكل الأسر</button>
+
+  <div class="utility-row">
+    <button class="util-btn" id="downloadAppBtn">⬇️ تنزيل التطبيق</button>
+    <button class="util-btn" id="installBtn">📲 إضافة للشاشة الرئيسية</button>
+  </div>
+</div>
+
+<!-- ===== نافذة إرشادات الإضافة للشاشة الرئيسية ===== -->
+<div class="modal-overlay hidden" id="installModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>إضافة للشاشة الرئيسية</h2>
+      <button id="installCloseBtn" class="modal-close">✕</button>
+    </div>
+    <div class="install-steps">
+      <p><strong>📱 آيفون (Safari):</strong> اضغط زر المشاركة <span class="ic">⬆️</span> بالأسفل ثم اختر "إضافة إلى الشاشة الرئيسية".</p>
+      <p><strong>🤖 أندرويد (Chrome):</strong> افتح قائمة المتصفح (⋮) ثم اختر "تثبيت التطبيق" أو "إضافة إلى الشاشة الرئيسية".</p>
+      <p><strong>💻 كمبيوتر (Chrome/Edge):</strong> اضغط أيقونة التثبيت ⊕ في شريط العنوان، أو من القائمة اختر "تثبيت الصفحة".</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== نافذة التقرير الشامل ===== -->
+<div class="modal-overlay hidden" id="reportModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>التقرير الشامل</h2>
+      <button id="reportCloseBtn" class="modal-close">✕</button>
+    </div>
+    <p class="report-range" id="reportRange">—</p>
+    <div id="reportBody"></div>
+  </div>
+</div>
+
+<!-- ===== شاشة الأسرة بعد الدخول ===== -->
+<div class="wrap hidden" id="appView">
+  <header>
+    <div class="brand">
+      <span class="who">تم الدخول باسم</span>
+      <h1 class="group-title" id="groupTitle">—</h1>
+    </div>
+    <div class="header-actions">
+      <div class="date-box">
+        <label>التاريخ</label>
+        <input type="date" id="dateInput">
+      </div>
+      <button class="save-btn" id="saveBtn">حفظ الصفحة</button>
+      <button class="logout-btn" id="logoutBtn">تسجيل الخروج ←</button>
+    </div>
+  </header>
+
+  <div class="meta-strip" id="metaStrip"></div>
+  <div class="meta-strip">
+    <span class="autosave-badge">
+      <span class="dot"></span> الحفظ التلقائي مفعّل
+    </span>
+    <span class="conn-badge" id="connBadgeApp">● جارِ التحقق من الاتصال...</span>
+  </div>
+
+  <div class="summary-strip">
+    <div class="pill present"><span class="num" id="sumPresent">0</span><span class="lbl">حاضر</span></div>
+    <div class="pill absent"><span class="num" id="sumAbsent">0</span><span class="lbl">غائب</span></div>
+    <div class="pill"><span class="num" id="sumTotal">0</span><span class="lbl">الإجمالي</span></div>
+  </div>
+
+  <div class="points-panel">
+    <div class="points-info">
+      <span class="points-lbl">نقاط الأسرة</span>
+      <span class="points-val" id="pointsVal">0</span>
+      <span class="points-deducted-lbl">— إجمالي الخصم: <span id="deductedVal">0</span>
+        <button id="deductedEditBtn" class="edit-mini" title="تعديل إجمالي الخصم">✎</button>
+      </span>
+      <span class="deducted-edit-row hidden" id="deductedEditRow">
+        <input type="number" id="deductedEditInput" min="0">
+        <button id="deductedEditSave" class="pt-btn add">حفظ</button>
+      </span>
+    </div>
+    <div class="points-actions">
+      <input type="number" id="pointsAmount" value="5" min="1">
+      <button id="pointsAddBtn" class="pt-btn add">+ إضافة</button>
+      <button id="pointsDeductBtn" class="pt-btn deduct">− خصم</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="rows" id="rows"></div>
+  </div>
+  <button class="add-student-btn" id="addStudentBtn">+ إضافة طالب</button>
+
+  <footer>يُحفظ تلقائيًا لكل تاريخ ولكل أسرة</footer>
+</div>
+
+<div class="save-note" id="saveNote">تم الحفظ</div>
+
+<script>
+const LEVELS = [
+  { id: 'secondary', label: 'القسم الثانوي', icon: '🎓' },
+  { id: 'middle', label: 'القسم المتوسط', icon: '📘' }
+];
+
+/* البيانات الافتراضية — قابلة للتعديل والإضافة من داخل التطبيق ويُحفظ أي تعديل تلقائيًا */
+let GROUPS = [
+  {
+    label: 'العزيمة',
+    level: 'secondary',
+    names: [
+      'احمد الخضيري',
+      'رباح ضاحي',
+      'عبدالرحمن محمد',
+      'مهند ماجد',
+      'عبدالمجيد راضي',
+      'عبدالرحمن ضيف',
+      'عبدالعزيز صلاح',
+      'اسعد احمد',
+      'راشد المري',
+      'محمد غازي',
+      'يوسف نور',
+      'بندر فهد',
+      'يزيد بشير',
+      'رائد الطيار',
+      'خيرالله العنزي',
+      'محمد مشعل'
+    ]
+  },
+  {
+    label: 'المعالي',
+    level: 'secondary',
+    names: [
+      'عبدالرحمن السهلي',
+      'حمد شبيب',
+      'مشاري المطيري',
+      'عبدالرحمن نايف',
+      'ماجد العتيبي',
+      'تركي مساعد',
+      'يوسف الفنار',
+      'ناصر محمد',
+      'عادل فرحان',
+      'تركي محمد',
+      'عبدالله جابر',
+      'خالد مخلد',
+      'المعتصم بالله',
+      'ميزر'
+    ]
+  },
+  {
+    label: 'الطموح',
+    level: 'secondary',
+    names: [
+      'ماجد عقيل',
+      'احمد ماجد',
+      'عبدالرحمن مهدي',
+      'عياد صالح',
+      'عبدالرحمن شايز',
+      'سالم الذيابي',
+      'عبدالرحمن مساعد',
+      'قتيبة ناصر',
+      'فارس عناد',
+      'ماجد زيد',
+      'خالد محمد',
+      'حماد الحربي',
+      'عبدالرحمن فواز',
+      'احمد عبدالحكيم',
+      'نزال العنزي'
+    ]
+  },
+  {
+    label: 'الهمة',
+    level: 'secondary',
+    names: [
+      'محمد الشلوي',
+      'صالح فقيه',
+      'المعتز بالله',
+      'يوسف صالح',
+      'إبراهيم فهد',
+      'ريان طلال',
+      'مشاري العنزي',
+      'نواف مهدي',
+      'عبدالرحمن غازي',
+      'اسامة العقلا',
+      'صالح فهيد',
+      'اصيل العنزي',
+      'عيسى مد الله',
+      'محمد محمود',
+      'عبدالله الشمري',
+      'شجاع الدوسري'
+    ]
+  },
+  {
+    label: 'أسرة الوفاء',
+    level: 'middle',
+    names: [
+      'معتز فلاح',
+      'محمد عبدالمحسن',
+      'اسامة صالح',
+      'معلا ضاحي',
+      'غدير سعد',
+      'عبدالرحمن البحيري',
+      'فهد طلال',
+      'سالم ثامر',
+      'راكان محمد',
+      'عبدالعزيز حاتم',
+      'اسامه سعود',
+      'محمد فهد',
+      'عماد ممدوح',
+      'سلمان فهد',
+      'حسام العضيب'
+    ]
+  },
+  {
+    label: 'أسرة الإرادة',
+    level: 'middle',
+    names: [
+      'ثنيان جميل',
+      'يوسف راضي',
+      'اسامة فهد',
+      'عبدالله خالد',
+      'فيصل فياض',
+      'اسامة نايف',
+      'صلاح العقلا',
+      'حمد الجاسم',
+      'سليمان ثامر',
+      'عمر الأشرم',
+      'منصور نايف',
+      'عبدالله بادي',
+      'سعود فهيد',
+      'محمد حجاب'
+    ]
+  },
+  {
+    label: 'أسرة الإبداع',
+    level: 'middle',
+    names: [
+      'سعود محمد',
+      'منصور نايف',
+      'سلطان سالم',
+      'يامن صالح',
+      'خالد البحيري',
+      'احمد الخلف',
+      'فهد صالح',
+      'عبدالله المطيري',
+      'عبدالكريم عناد',
+      'راضي سلمان',
+      'محمد حامد',
+      'محمد سعود',
+      'بندر عبدالعزيز',
+      'غنام ضاحي'
+    ]
+  }
+];
+
+const SESSION_KEY = 'attendance-current-session';
+const GROUPS_DATA_KEY = 'attendance-groups-data';
+
+async function loadGroupsData(){
+  const defaults = GROUPS; // النسخة الافتراضية المضمّنة في الكود قبل أي تحميل من التخزين
+  try{
+    const res = await storageGet(GROUPS_DATA_KEY);
+    if(res && res.value){
+      let saved = JSON.parse(res.value);
+      if(Array.isArray(saved) && saved.length){
+        let migrated = false;
+        // ترحيل: إضافة حقل القسم لأي بيانات قديمة لا تحتويه
+        saved.forEach(g=>{
+          if(!g.level){ g.level = 'secondary'; migrated = true; }
+        });
+        // ترحيل: إضافة أي أسرة افتراضية جديدة (مثل أسر قسم المتوسط) غير موجودة في المحفوظ
+        const existingLabels = saved.map(g=>g.label);
+        defaults.forEach(defGroup=>{
+          if(!existingLabels.includes(defGroup.label)){
+            saved.push(JSON.parse(JSON.stringify(defGroup)));
+            migrated = true;
+          }
+        });
+        GROUPS = saved;
+        if(migrated) await saveGroupsData();
+        return;
+      }
+    }
+  }catch(e){ /* استخدام البيانات الافتراضية */ }
+  // أول تشغيل: احفظ البيانات الافتراضية كنقطة بداية
+  await saveGroupsData();
+}
+async function saveGroupsData(){
+  try{
+    await storageSet(GROUPS_DATA_KEY, JSON.stringify(GROUPS));
+  }catch(e){ console.error('groups data save failed', e); }
+}
+
+let currentGroupIdx = null;
+let currentDate = null;
+let currentRecord = null;
+let saveTimer = null;
+
+function todayStr(){
+  const d = new Date();
+  const off = d.getTimezoneOffset();
+  const local = new Date(d.getTime() - off*60000);
+  return local.toISOString().slice(0,10);
+}
+function startDateStr(){
+  const d = new Date();
+  const off = d.getTimezoneOffset();
+  const local = new Date(d.getTime() - off*60000);
+  local.setDate(4);
+  return local.toISOString().slice(0,10);
+}
+
+async function loadSession(){
+  try{
+    const res = await storageGet(SESSION_KEY);
+    if(res && res.value !== undefined && res.value !== null && res.value !== ''){
+      const idx = JSON.parse(res.value);
+      if(Number.isInteger(idx) && GROUPS[idx]) return idx;
+    }
+  }catch(e){ /* no session */ }
+  return null;
+}
+async function saveSession(idx){
+  try{ await storageSet(SESSION_KEY, JSON.stringify(idx)); }
+  catch(e){ console.error('session save failed', e); }
+}
+async function clearSession(){
+  try{ await storageDelete(SESSION_KEY); }
+  catch(e){ /* ignore */ }
+}
+
+/* ---------- طبقة تخزين محلية احتياطية (تُستخدم فقط لحفظ رمز المزامنة ولحالات انقطاع الإنترنت) ---------- */
+const memoryStore = {};
+const hasClaudeStorage = (typeof window !== 'undefined') && !!window.storage
+  && typeof window.storage.get === 'function' && typeof window.storage.set === 'function';
+let hasLocalStorage = false;
+try{
+  const t = '__test__';
+  window.localStorage.setItem(t, '1');
+  window.localStorage.removeItem(t);
+  hasLocalStorage = true;
+}catch(e){ hasLocalStorage = false; }
+
+async function localGet(key){
+  if(hasClaudeStorage) return await window.storage.get(key, false);
+  if(hasLocalStorage){
+    const v = window.localStorage.getItem(key);
+    return v !== null ? { value: v } : null;
+  }
+  return Object.prototype.hasOwnProperty.call(memoryStore, key) ? { value: memoryStore[key] } : null;
+}
+async function localSet(key, value){
+  if(hasClaudeStorage) return await window.storage.set(key, value, false);
+  if(hasLocalStorage){ window.localStorage.setItem(key, value); return { key, value }; }
+  memoryStore[key] = value;
+  return { key, value };
+}
+async function localDelete(key){
+  if(hasClaudeStorage) return await window.storage.delete(key, false);
+  if(hasLocalStorage){ window.localStorage.removeItem(key); return { key, deleted: true }; }
+  delete memoryStore[key];
+  return { key, deleted: true };
+}
+
+/* ---------- تخزين حقيقي على الإنترنت عبر kvdb.io (مجاني وبدون تسجيل) ---------- */
+const KVDB_BASE = 'https://kvdb.io';
+const BUCKET_KEY = 'attendance-online-bucket-id';
+let onlineBucket = null;
+let isOnline = false;
+
+async function fetchWithTimeout(url, options, timeoutMs){
+  const controller = new AbortController();
+  const timer = setTimeout(()=> controller.abort(), timeoutMs || 4000);
+  try{
+    return await fetch(url, { ...(options||{}), signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function ensureOnlineBucket(){
+  try{
+    const saved = await localGet(BUCKET_KEY);
+    if(saved && saved.value){
+      onlineBucket = saved.value;
+      isOnline = await pingBucket(onlineBucket);
+      if(isOnline){ updateConnectionBadge(); return; }
+    }
+    // إنشاء دلو (bucket) جديد على kvdb.io
+    const res = await fetchWithTimeout(`${KVDB_BASE}/`, { method: 'POST' }, 4000);
+    if(res.ok){
+      const id = (await res.text()).trim();
+      if(id){
+        onlineBucket = id;
+        isOnline = true;
+        await localSet(BUCKET_KEY, id);
+      }
+    }
+  }catch(e){
+    isOnline = false;
+  }
+  updateConnectionBadge();
+}
+
+async function pingBucket(bucket){
+  try{
+    const res = await fetchWithTimeout(`${KVDB_BASE}/${bucket}/__ping__`, { method: 'GET' }, 4000);
+    return res.status === 200 || res.status === 404;
+  }catch(e){ return false; }
+}
+
+async function storageGet(key){
+  if(isOnline && onlineBucket){
+    try{
+      const res = await fetchWithTimeout(`${KVDB_BASE}/${onlineBucket}/${encodeURIComponent(key)}`, {}, 4000);
+      if(res.status === 404) return null;
+      if(res.ok){ const value = await res.text(); return { value }; }
+    }catch(e){ isOnline = false; updateConnectionBadge(); }
+  }
+  return await localGet(key);
+}
+async function storageSet(key, value){
+  if(isOnline && onlineBucket){
+    try{
+      const res = await fetchWithTimeout(`${KVDB_BASE}/${onlineBucket}/${encodeURIComponent(key)}`, {
+        method: 'POST',
+        body: value
+      }, 4000);
+      if(res.ok){ await localSet(key, value); return { key, value }; }
+    }catch(e){ isOnline = false; updateConnectionBadge(); }
+  }
+  return await localSet(key, value);
+}
+async function storageDelete(key){
+  if(isOnline && onlineBucket){
+    try{
+      await fetchWithTimeout(`${KVDB_BASE}/${onlineBucket}/${encodeURIComponent(key)}`, { method: 'DELETE' }, 4000);
+    }catch(e){ isOnline = false; updateConnectionBadge(); }
+  }
+  return await localDelete(key);
+}
+
+function updateConnectionBadge(){
+  const text = isOnline ? '● متصل بالإنترنت — الحفظ سحابي' : '● وضع محلي — لا يوجد اتصال بالإنترنت حاليًا';
+  const cls = 'conn-badge ' + (isOnline ? 'online' : 'offline');
+  ['connBadge','connBadgeApp'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el){ el.textContent = text; el.className = cls; }
+  });
+}
+
+function recordKey(groupIdx, date){ return `attendance-record:${groupIdx}:${date}`; }
+const DATES_INDEX_KEY = 'attendance-dates-index';
+function pointsKey(groupIdx){ return `group-points:${groupIdx}`; }
+
+async function loadRecord(groupIdx, date){
+  try{
+    const res = await storageGet(recordKey(groupIdx, date));
+    if(res && res.value) return JSON.parse(res.value);
+  }catch(e){ /* not found */ }
+  return { statuses: {} };
+}
+async function loadDatesIndex(){
+  try{
+    const res = await storageGet(DATES_INDEX_KEY);
+    if(res && res.value) return JSON.parse(res.value);
+  }catch(e){ /* none yet */ }
+  return [];
+}
+async function addDateToIndex(date){
+  try{
+    const dates = await loadDatesIndex();
+    if(!dates.includes(date)){
+      dates.push(date);
+      dates.sort();
+      await storageSet(DATES_INDEX_KEY, JSON.stringify(dates));
+    }
+  }catch(e){ console.error('date index update failed', e); }
+}
+async function saveRecord(groupIdx, date, record){
+  try{
+    await storageSet(recordKey(groupIdx, date), JSON.stringify(record));
+    await addDateToIndex(date);
+    flashSaved(true);
+  }catch(e){
+    console.error('record save failed', e);
+    flashSaved(false);
+  }
+}
+
+async function loadPoints(groupIdx){
+  try{
+    const res = await storageGet(pointsKey(groupIdx));
+    if(res && res.value !== undefined && res.value !== null && res.value !== ''){
+      const n = Number(res.value);
+      if(!Number.isNaN(n)) return n;
+    }
+  }catch(e){ /* none yet */ }
+  return 0;
+}
+async function savePoints(groupIdx, value){
+  try{
+    await storageSet(pointsKey(groupIdx), String(value));
+    flashSaved(true);
+  }catch(e){
+    console.error('points save failed', e);
+    flashSaved(false);
+  }
+}
+
+function deductionsKey(groupIdx){ return `group-deductions:${groupIdx}`; }
+async function loadDeductions(groupIdx){
+  try{
+    const res = await storageGet(deductionsKey(groupIdx));
+    if(res && res.value !== undefined && res.value !== null && res.value !== ''){
+      const n = Number(res.value);
+      if(!Number.isNaN(n)) return n;
+    }
+  }catch(e){ /* none yet */ }
+  return 0;
+}
+async function addDeduction(groupIdx, amount){
+  const current = await loadDeductions(groupIdx);
+  const updated = current + amount;
+  try{
+    await storageSet(deductionsKey(groupIdx), String(updated));
+  }catch(e){ console.error('deductions save failed', e); }
+  return updated;
+}
+async function setDeductions(groupIdx, value){
+  try{
+    await storageSet(deductionsKey(groupIdx), String(value));
+    flashSaved(true);
+  }catch(e){
+    console.error('deductions save failed', e);
+    flashSaved(false);
+  }
+}
+
+function flashSaved(success){
+  const note = document.getElementById('saveNote');
+  note.textContent = success === false ? 'تعذّر الحفظ — تحقق من الاتصال' : 'تم الحفظ';
+  note.classList.toggle('error', success === false);
+  note.classList.add('show');
+  clearTimeout(note._t);
+  note._t = setTimeout(()=>note.classList.remove('show'), success === false ? 2200 : 900);
+}
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>saveRecord(currentGroupIdx, currentDate, currentRecord), 350);
+}
+async function flushSave(){
+  if(saveTimer){
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    if(currentGroupIdx !== null && currentRecord){
+      await saveRecord(currentGroupIdx, currentDate, currentRecord);
+    }
+  }
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+function escapeAttr(str){
+  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+}
+function initials(label){
+  const parts = label.trim().split(/\s+/);
+  return (parts[1] ? parts[1][0] : parts[0][0]) || 'أ';
+}
+
+/* ---------------- Login view: اختيار القسم ثم الأسرة ---------------- */
+let currentLevel = null;
+
+function renderLevelList(){
+  const list = document.getElementById('levelList');
+  list.innerHTML = '';
+  LEVELS.forEach(level=>{
+    const count = GROUPS.filter(g=> g.level === level.id).length;
+    const card = document.createElement('div');
+    card.className = 'level-card';
+    card.innerHTML = `
+      <div class="level-icon">${level.icon}</div>
+      <div class="level-info">
+        <div class="level-name">${escapeHtml(level.label)}</div>
+        <div class="level-meta">${count} أسرة</div>
+      </div>
+      <span class="enter-arrow">←</span>
+    `;
+    card.addEventListener('click', ()=> selectLevel(level.id));
+    list.appendChild(card);
+  });
+}
+
+function selectLevel(levelId){
+  currentLevel = levelId;
+  document.getElementById('levelList').classList.add('hidden');
+  document.getElementById('groupListView').classList.remove('hidden');
+  const levelInfo = LEVELS.find(l=> l.id === levelId);
+  document.getElementById('loginSubtitle').textContent = `${levelInfo ? levelInfo.label : ''} — اختر اسم الأسرة`;
+  renderGroupList();
+}
+
+function backToLevels(){
+  currentLevel = null;
+  document.getElementById('groupListView').classList.add('hidden');
+  document.getElementById('levelList').classList.remove('hidden');
+  document.getElementById('loginSubtitle').textContent = 'اختر القسم';
+}
+
+function showLoginScreen(){
+  document.getElementById('appView').classList.add('hidden');
+  document.getElementById('loginView').classList.remove('hidden');
+  backToLevels();
+  renderLevelList();
+}
+
+function renderGroupList(){
+  const list = document.getElementById('groupList');
+  list.innerHTML = '';
+  GROUPS.forEach((group, idx)=>{
+    if(currentLevel && group.level !== currentLevel) return;
+    const card = document.createElement('div');
+    card.className = 'group-card';
+    card.innerHTML = `
+      <div class="avatar">${escapeHtml(initials(group.label))}</div>
+      <div class="info">
+        <div class="name">${escapeHtml(group.label)}</div>
+        <div class="group-meta">${group.names.length} طالب</div>
+      </div>
+      <span class="enter-arrow">←</span>
+    `;
+    card.addEventListener('click', ()=> login(idx));
+    list.appendChild(card);
+  });
+}
+
+async function login(idx){
+  currentGroupIdx = idx;
+  currentLevel = GROUPS[idx].level || currentLevel;
+  await saveSession(idx);
+  showAppView();
+}
+
+async function logout(){
+  await flushSave();
+  currentGroupIdx = null;
+  await clearSession();
+  showLoginScreen();
+}
+
+/* ---------------- التقرير الشامل ---------------- */
+async function openReport(){
+  const modal = document.getElementById('reportModal');
+  const body = document.getElementById('reportBody');
+  const rangeEl = document.getElementById('reportRange');
+  modal.classList.remove('hidden');
+  body.innerHTML = '<p class="report-empty">جارٍ تجميع البيانات...</p>';
+
+  const dates = await loadDatesIndex();
+  if(dates.length === 0){
+    rangeEl.textContent = 'لا يوجد تسجيل حضور بعد';
+    body.innerHTML = '<p class="report-empty">لم يتم تسجيل أي حضور حتى الآن.</p>';
+    return;
+  }
+  const first = dates[0];
+  const last = dates[dates.length - 1];
+  rangeEl.textContent = `من ${first} إلى ${last} — (${dates.length} يوم مسجّل)`;
+
+  body.innerHTML = '';
+  for(let idx=0; idx<GROUPS.length; idx++){
+    const group = GROUPS[idx];
+    let present=0, absent=0;
+    for(const date of dates){
+      const record = await loadRecord(idx, date);
+      Object.values(record.statuses || {}).forEach(s=>{
+        if(s==='present') present++;
+        else if(s==='absent') absent++;
+      });
+    }
+    const points = await loadPoints(idx);
+    const deducted = await loadDeductions(idx);
+    const levelInfo = LEVELS.find(l=> l.id === group.level);
+    const card = document.createElement('div');
+    card.className = 'report-group';
+    card.innerHTML = `
+      <div class="rg-name">${escapeHtml(group.label)} <span class="rg-level-tag">${levelInfo ? escapeHtml(levelInfo.label) : ''}</span></div>
+      <div class="rg-stats">
+        <span class="rg-pill present">حاضر: ${present}</span>
+        <span class="rg-pill absent">غائب: ${absent}</span>
+        <span class="rg-pill points">النقاط: <span class="rg-points-val" data-gidx="${idx}">${points}</span></span>
+        <span class="rg-pill deducted">إجمالي الخصم: <span class="rg-deducted-val" data-gidx="${idx}">${deducted}</span>
+          <button class="edit-mini rg-deducted-edit-btn" data-gidx="${idx}" title="تعديل">✎</button>
+        </span>
+      </div>
+      <div class="rg-deducted-edit-row hidden" data-gidx="${idx}">
+        <input type="number" class="rg-deducted-edit-input" data-gidx="${idx}" min="0">
+        <button class="pt-btn add rg-deducted-edit-save" data-gidx="${idx}">حفظ</button>
+      </div>
+      <div class="rg-points-actions">
+        <input type="number" class="rg-points-amount" data-gidx="${idx}" value="5" min="1">
+        <button class="pt-btn add rg-add" data-gidx="${idx}">+ إضافة</button>
+        <button class="pt-btn deduct rg-deduct" data-gidx="${idx}">− خصم</button>
+      </div>
+    `;
+    body.appendChild(card);
+  }
+
+  body.querySelectorAll('.rg-add, .rg-deduct').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const gidx = +btn.dataset.gidx;
+      const isDeduct = btn.classList.contains('rg-deduct');
+      const sign = isDeduct ? -1 : 1;
+      const amountInput = body.querySelector(`.rg-points-amount[data-gidx="${gidx}"]`);
+      const amount = Math.abs(Number(amountInput.value)) || 0;
+      if(amount === 0) return;
+      const valEl = body.querySelector(`.rg-points-val[data-gidx="${gidx}"]`);
+      const current = Number(valEl.textContent) || 0;
+      const updated = Math.max(0, current + (sign * amount));
+      valEl.textContent = updated;
+      await savePoints(gidx, updated);
+      if(isDeduct){
+        const totalDeducted = await addDeduction(gidx, amount);
+        const deductedEl = body.querySelector(`.rg-deducted-val[data-gidx="${gidx}"]`);
+        if(deductedEl) deductedEl.textContent = totalDeducted;
+        if(gidx === currentGroupIdx){
+          document.getElementById('deductedVal').textContent = totalDeducted;
+        }
+      }
+      if(gidx === currentGroupIdx){
+        document.getElementById('pointsVal').textContent = updated;
+      }
+    });
+  });
+  body.querySelectorAll('.rg-deducted-edit-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const gidx = btn.dataset.gidx;
+      const row = body.querySelector(`.rg-deducted-edit-row[data-gidx="${gidx}"]`);
+      const input = body.querySelector(`.rg-deducted-edit-input[data-gidx="${gidx}"]`);
+      const currentVal = body.querySelector(`.rg-deducted-val[data-gidx="${gidx}"]`).textContent;
+      input.value = currentVal;
+      row.classList.remove('hidden');
+      input.focus();
+      input.select();
+    });
+  });
+  body.querySelectorAll('.rg-deducted-edit-save').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const gidx = +btn.dataset.gidx;
+      const input = body.querySelector(`.rg-deducted-edit-input[data-gidx="${gidx}"]`);
+      const value = Math.max(0, Number(input.value) || 0);
+      body.querySelector(`.rg-deducted-val[data-gidx="${gidx}"]`).textContent = value;
+      body.querySelector(`.rg-deducted-edit-row[data-gidx="${gidx}"]`).classList.add('hidden');
+      await setDeductions(gidx, value);
+      if(gidx === currentGroupIdx){
+        document.getElementById('deductedVal').textContent = value;
+      }
+    });
+  });
+}
+function closeReport(){
+  document.getElementById('reportModal').classList.add('hidden');
+}
+
+/* ---------------- App view ---------------- */
+function showAppView(){
+  document.getElementById('loginView').classList.add('hidden');
+  document.getElementById('appView').classList.remove('hidden');
+  const group = GROUPS[currentGroupIdx];
+  document.getElementById('groupTitle').textContent = group.label;
+
+  const levelInfo = LEVELS.find(l=> l.id === group.level);
+  const meta = document.getElementById('metaStrip');
+  meta.innerHTML = `<span class="tag">${levelInfo ? escapeHtml(levelInfo.label) : ''}</span><span class="tag">العدد: ${group.names.length} طالب</span>`;
+
+  renderRows();
+  loadGroupPoints();
+  const dateInput = document.getElementById('dateInput');
+  dateInput.value = currentDate;
+  switchDate(currentDate);
+}
+
+async function loadGroupPoints(){
+  const points = await loadPoints(currentGroupIdx);
+  document.getElementById('pointsVal').textContent = points;
+  const deducted = await loadDeductions(currentGroupIdx);
+  document.getElementById('deductedVal').textContent = deducted;
+}
+
+async function adjustPoints(delta){
+  const amountInput = document.getElementById('pointsAmount');
+  const amount = Math.abs(Number(amountInput.value)) || 0;
+  if(amount === 0) return;
+  const current = Number(document.getElementById('pointsVal').textContent) || 0;
+  const updated = Math.max(0, current + (delta * amount));
+  document.getElementById('pointsVal').textContent = updated;
+  await savePoints(currentGroupIdx, updated);
+  if(delta < 0){
+    const totalDeducted = await addDeduction(currentGroupIdx, amount);
+    document.getElementById('deductedVal').textContent = totalDeducted;
+  }
+}
+
+function renderRows(){
+  const group = GROUPS[currentGroupIdx];
+  const rowsEl = document.getElementById('rows');
+  rowsEl.innerHTML = '';
+  group.names.forEach((name, nIdx)=>{
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.innerHTML = `
+      <span class="idx">${nIdx+1}</span>
+      <input class="name" type="text" value="${escapeAttr(name)}" data-nidx="${nIdx}">
+      <div class="status-btns" data-nidx="${nIdx}">
+        <button data-status="present" title="حاضر">حاضر</button>
+        <button data-status="absent" title="غائب">غائب</button>
+      </div>
+    `;
+    rowsEl.appendChild(row);
+  });
+
+  rowsEl.querySelectorAll('input.name').forEach(inp=>{
+    inp.addEventListener('change', async (e)=>{
+      const nIdx = +e.target.dataset.nidx;
+      const val = e.target.value.trim();
+      GROUPS[currentGroupIdx].names[nIdx] = val || `طالب ${nIdx+1}`;
+      e.target.value = GROUPS[currentGroupIdx].names[nIdx];
+      await saveGroupsData();
+      refreshGroupCardMeta();
+    });
+  });
+
+  rowsEl.querySelectorAll('.status-btns').forEach(group=>{
+    group.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const nIdx = group.dataset.nidx;
+        const status = btn.dataset.status;
+        if(currentRecord.statuses[nIdx] === status){
+          delete currentRecord.statuses[nIdx];
+        } else {
+          currentRecord.statuses[nIdx] = status;
+        }
+        applyButtonStates();
+        updateSummary();
+        scheduleSave();
+      });
+    });
+  });
+}
+
+async function addNewStudent(){
+  const group = GROUPS[currentGroupIdx];
+  group.names.push(`طالب ${group.names.length + 1}`);
+  await saveGroupsData();
+  renderRows();
+  applyButtonStates();
+  updateSummary();
+  refreshGroupCardMeta();
+  const inputs = document.querySelectorAll('#rows input.name');
+  const last = inputs[inputs.length - 1];
+  if(last){ last.focus(); last.select(); }
+}
+
+function refreshGroupCardMeta(){
+  const meta = document.getElementById('metaStrip');
+  if(!meta) return;
+  const group = GROUPS[currentGroupIdx];
+  const levelInfo = LEVELS.find(l=> l.id === group.level);
+  meta.innerHTML = `<span class="tag">${levelInfo ? escapeHtml(levelInfo.label) : ''}</span><span class="tag">العدد: ${group.names.length} طالب</span>`;
+}
+
+
+function applyButtonStates(){
+  document.querySelectorAll('.status-btns').forEach(group=>{
+    const nIdx = group.dataset.nidx;
+    const status = currentRecord.statuses[nIdx];
+    group.querySelectorAll('button').forEach(btn=>{
+      btn.classList.remove('active-present','active-absent','active-late');
+      if(status && btn.dataset.status === status) btn.classList.add(`active-${status}`);
+    });
+  });
+}
+
+function updateSummary(){
+  let present=0, absent=0;
+  Object.values(currentRecord.statuses).forEach(s=>{
+    if(s==='present') present++;
+    else if(s==='absent') absent++;
+  });
+  document.getElementById('sumPresent').textContent = present;
+  document.getElementById('sumAbsent').textContent = absent;
+  document.getElementById('sumTotal').textContent = GROUPS[currentGroupIdx].names.length;
+}
+
+async function switchDate(date){
+  currentDate = date;
+  currentRecord = await loadRecord(currentGroupIdx, date);
+  applyButtonStates();
+  updateSummary();
+}
+
+/* ---------------- مشاركة الرابط والإضافة للشاشة الرئيسية ---------------- */
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredInstallPrompt = e;
+});
+
+function showToast(text){
+  const note = document.getElementById('saveNote');
+  note.textContent = text;
+  note.classList.remove('error');
+  note.classList.add('show');
+  clearTimeout(note._t);
+  note._t = setTimeout(()=>note.classList.remove('show'), 1600);
+}
+
+async function triggerInstall(){
+  if(deferredInstallPrompt){
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    return;
+  }
+  document.getElementById('installModal').classList.remove('hidden');
+}
+function closeInstallModal(){
+  document.getElementById('installModal').classList.add('hidden');
+}
+
+document.getElementById('installBtn').addEventListener('click', triggerInstall);
+document.getElementById('installCloseBtn').addEventListener('click', closeInstallModal);
+document.getElementById('installModal').addEventListener('click', (e)=>{
+  if(e.target.id === 'installModal') closeInstallModal();
+});
+
+/* تنزيل التطبيق كملف يعمل بشكل مستقل */
+function downloadApp(){
+  try{
+    const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'سجل-التحضير.html';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    showToast('تم تنزيل التطبيق — افتح الملف من التنزيلات لاستخدامه');
+  }catch(e){
+    console.error('download failed', e);
+    alert('تعذّر تنزيل الملف.');
+  }
+}
+
+/* مشاركة الرابط تتم عبر أيقونة المشاركة المدمجة في المتصفح نفسه (شريط العنوان) — لا حاجة لزر منفصل */
+
+document.getElementById('downloadAppBtn').addEventListener('click', downloadApp);
+
+/* ---------------- Init & wiring ---------------- */
+document.getElementById('logoutBtn').addEventListener('click', logout);
+document.getElementById('backToLevelsBtn').addEventListener('click', backToLevels);
+document.getElementById('addStudentBtn').addEventListener('click', addNewStudent);
+document.getElementById('pointsAddBtn').addEventListener('click', ()=> adjustPoints(1));
+document.getElementById('pointsDeductBtn').addEventListener('click', ()=> adjustPoints(-1));
+document.getElementById('deductedEditBtn').addEventListener('click', ()=>{
+  const row = document.getElementById('deductedEditRow');
+  const input = document.getElementById('deductedEditInput');
+  input.value = document.getElementById('deductedVal').textContent;
+  row.classList.remove('hidden');
+  input.focus();
+  input.select();
+});
+document.getElementById('deductedEditSave').addEventListener('click', async ()=>{
+  const input = document.getElementById('deductedEditInput');
+  const value = Math.max(0, Number(input.value) || 0);
+  document.getElementById('deductedVal').textContent = value;
+  document.getElementById('deductedEditRow').classList.add('hidden');
+  await setDeductions(currentGroupIdx, value);
+});
+document.getElementById('deductedEditInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') document.getElementById('deductedEditSave').click();
+  if(e.key === 'Escape') document.getElementById('deductedEditRow').classList.add('hidden');
+});
+document.getElementById('reportBtn').addEventListener('click', openReport);
+document.getElementById('reportCloseBtn').addEventListener('click', closeReport);
+document.getElementById('reportModal').addEventListener('click', (e)=>{
+  if(e.target.id === 'reportModal') closeReport();
+});
+document.getElementById('saveBtn').addEventListener('click', async ()=>{
+  await flushSave();
+  await saveRecord(currentGroupIdx, currentDate, currentRecord);
+  await logout();
+});
+document.getElementById('dateInput').addEventListener('change', async (e)=>{
+  await flushSave();
+  switchDate(e.target.value);
+});
+window.addEventListener('pagehide', ()=>{ flushSave(); });
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState === 'hidden') flushSave();
+});
+
+async function init(){
+  const start = startDateStr();
+  const today = todayStr();
+  currentDate = today < start ? start : today;
+  document.getElementById('dateInput').min = start;
+  updateConnectionBadge();
+  ensureOnlineBucket(); // يعمل في الخلفية دون تعطيل ظهور الواجهة
+  await loadGroupsData();
+  const sessionIdx = await loadSession();
+  if(sessionIdx !== null && GROUPS[sessionIdx]){
+    currentGroupIdx = sessionIdx;
+    currentLevel = GROUPS[sessionIdx].level || null;
+    showAppView();
+  } else {
+    renderLevelList();
+  }
+}
+
+init();
+</script>
+</body>
+</html>
